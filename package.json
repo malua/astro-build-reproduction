@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tastro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "astro build --verbose",
     "preview": "astro preview",
     "astro": "astro",
     "postbuild": "pagefind --site dist"
