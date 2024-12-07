@@ -1,0 +1,23 @@
+---
+import MapView from "@components/MapView.astro";
+import MasonryLayout from "@components/Masonry.astro";
+import CategoryLayout from "@layouts/CategoryLayout.astro";
+import { getLocalizedPaths } from "@utils/loaders";
+import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
+
+export async function getStaticPaths() {
+  return getLocalizedPaths("categories", "en");
+}
+
+interface Props {
+  entry: CollectionEntry<"categories">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<CategoryLayout entry={entry}>
+  <Content components={{ MapView, MasonryLayout }} />
+</CategoryLayout>

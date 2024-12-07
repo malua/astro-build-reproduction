@@ -1,0 +1,28 @@
+---
+import MarkdownPostLayout from "@layouts/MarkdownPostLayout.astro";
+import MapView from "@components/MapView.astro";
+import MasonryLayout from "@components/Masonry.astro";
+import { getLocalizedPaths } from "@utils/loaders";
+import { render, type CollectionEntry } from "astro:content";
+
+const collection = "posts";
+
+export async function getStaticPaths() {
+  return getLocalizedPaths("posts", "en");
+}
+
+interface Props {
+  entry: CollectionEntry<"posts">;
+}
+
+const { entry } = Astro.props;
+
+const { Content, remarkPluginFrontmatter } = await render(entry);
+---
+
+<MarkdownPostLayout entry={entry} collection={collection}>
+  <p class="prose prose-slate dark:prose-invert italic no-underline">
+    {remarkPluginFrontmatter.minutesRead}
+  </p>
+  <Content components={{ MapView, MasonryLayout }} />
+</MarkdownPostLayout>

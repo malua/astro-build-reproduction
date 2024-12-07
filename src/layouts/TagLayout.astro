@@ -1,0 +1,111 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import GetRandomImage from "@components/getRandomImage.astro";
+import { getImage } from "astro:assets";
+import { getLocalizedCollection } from "@utils/loaders";
+import type { CollectionKey } from "astro:content";
+
+export interface Props {
+  title: string;
+  collection: CollectionKey;
+}
+
+const { title, collection } = Astro.props;
+
+const allContent = await getLocalizedCollection(
+  collection,
+  Astro.currentLocale,
+);
+const tags = [...new Set(allContent.map((post) => post.data.tags).flat())];
+
+const imagesByTag = {};
+for (const post of allContent) {
+  for (const tag of post.data.tags) {
+    if (!imagesByTag[tag]) {
+      imagesByTag[tag] = { large: [], medium: [], small: [], alt: [] };
+    }
+    if (post.data.image?.src) {
+      const [largeImage, mediumImage, smallImage] = await Promise.all([
+        getImage({
+          src: post.data.image.src,
+          alt: post.data.image.alt,
+          width: 1920,
+          height: 1080,
+          decoding: "async",
+          format: "avif",
+          quality: 65,
+        }),
+        getImage({
+          src: post.data.image.src,
+          alt: post.data.image.alt,
+          width: 1280,
+          height: 720,
+          decoding: "async",
+          format: "avif",
+          quality: 65,
+        }),
+        getImage({
+          src: post.data.image.src,
+          alt: post.data.image.alt,
+          width: 854,
+          height: 480,
+          decoding: "async",
+          format: "avif",
+          quality: 65,
+        }),
+      ]);
+      imagesByTag[tag].large.push(largeImage ? largeImage.src : null);
+      imagesByTag[tag].medium.push(mediumImage ? mediumImage.src : null);
+      imagesByTag[tag].small.push(smallImage ? smallImage.src : null);
+      imagesByTag[tag].alt.push(post.data.image.alt);
+    }
+  }
+}
+
+const imageSizes = {
+  width: {
+    large: 1920,
+    medium: 1280,
+    small: 854,
+  },
+  height: {
+    large: 1080,
+    medium: 720,
+    small: 480,
+  },
+};
+---
+
+<BaseLayout title={title} is404Page={false}>
+  <div>
+    {
+      tags.length === 1 ? (
+        <div class="object-contain w-full h-full relative flex items-center justify-center font-overpass-mono">
+          <GetRandomImage
+            images={JSON.stringify(imagesByTag[tags[0]])}
+            tag={tags[0]}
+            url={`/${collection}/tags/${tags[0]}`}
+            width={imageSizes.width}
+            height={imageSizes.height}
+          />
+          <slot />
+        </div>
+      ) : (
+        <div class="sm:grid sm:grid-cols-4 gap-4 space-y-4 sm:space-y-0 justify-center items-center font-overpass-mono">
+          {tags.map((tag) => (
+            <div class="col-span-1">
+              <GetRandomImage
+                images={JSON.stringify(imagesByTag[tag])}
+                tag={tag}
+                url={`/${collection}/tags/${tag}`}
+                width={imageSizes.width}
+                height={imageSizes.height}
+              />
+            </div>
+          ))}
+          <slot />
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

@@ -1,0 +1,48 @@
+---
+import "../styles/MasonryLayout.css";
+import { getImage } from "astro:assets";
+const { ...props } = Astro.props;
+import { loadImage } from "../scripts/loadImages";
+
+const imageAssets = await Promise.all(
+  props.images.map(async (image) => {
+    if (image) {
+      const resolvedImage = await loadImage(image.src);
+
+      return await getImage({
+        src: resolvedImage.default,
+        alt: image.alt,
+        inferSize: true,
+        width: "3840",
+        decoding: "async",
+        format: "avif",
+        loading: "lazy",
+      });
+    }
+    return null;
+  }),
+);
+---
+
+<div class="masonry not-prose">
+  {
+    imageAssets.map((imageAsset, index) =>
+      imageAsset ? (
+        <div key={index} class="image-container" id="gallery">
+          <a href={imageAsset.src} class="image-link glightbox">
+            <img
+              src={imageAsset.src}
+              alt={imageAsset.attributes.alt}
+              loading={imageAsset.attributes.loading}
+              decoding={imageAsset.attributes.decoding}
+              width={imageAsset.attributes.width}
+              height={imageAsset.attributes.height}
+              class="image"
+            />
+          </a>
+        </div>
+      ) : null,
+    )
+  }
+</div>
+<script src="../scripts/lightbox.js"></script>

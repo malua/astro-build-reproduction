@@ -1,0 +1,14 @@
+---
+import TagLayout from "@layouts/TagLayout.astro";
+const pageTitle = "Tags";
+
+export async function getStaticPaths() {
+  return [
+    {
+      params: { lang: "en" },
+    },
+  ];
+}
+---
+
+<TagLayout collection="posts" title={pageTitle} />

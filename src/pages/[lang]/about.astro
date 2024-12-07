@@ -1,0 +1,19 @@
+---
+import AboutPage from "@components/About.astro";
+import Masonry from "@components/Masonry.astro";
+import { getSingleLocalizedDocument, getLocalizedPaths } from "@utils/loaders";
+import { render } from "astro:content";
+
+const pageTitle = "About us";
+
+export async function getStaticPaths() {
+  return getLocalizedPaths("about", "en");
+}
+
+const about = await getSingleLocalizedDocument("about", Astro.currentLocale);
+const { Content } = await render(about);
+---
+
+<AboutPage title={pageTitle} about={about}>
+  <Content components={{ Masonry }} />
+</AboutPage>

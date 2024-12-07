@@ -1,0 +1,91 @@
+---
+const currentLocale = Astro.currentLocale;
+
+const languages = [
+  { code: "en", name: "English" },
+  { code: "de", name: "Deutsch" },
+];
+
+const { alternateHref } = Astro.props;
+---
+
+<div class="language-switcher" data-alternate-language-href={alternateHref}>
+  <select value={currentLocale} data-language-switcher>
+    {
+      languages.map((language) => (
+        <option
+          value={language.code}
+          selected={currentLocale === language.code}
+        >
+          {language.name}
+        </option>
+      ))
+    }
+  </select>
+</div>
+
+<script>
+  const selectElement: HTMLSelectElement | null = document.querySelector(
+    "[data-language-switcher]",
+  );
+  if (selectElement) {
+    selectElement.addEventListener("change", (event) => {
+      const target = event.target as HTMLSelectElement;
+      changeLanguage(target.value);
+    });
+  }
+
+  function changeLanguage(language: string) {
+    const alternateHref = (
+      document.querySelector("[data-alternate-language-href]") as HTMLElement
+    )?.dataset.alternateLanguageHref;
+
+    if (language === "en") {
+      if (alternateHref) {
+        // replace the current slug with the alternate language slug
+        window.location.href = `${window.location.origin}/en/${alternateHref}`;
+      } else {
+        const alternateLanguagePath = window.location.pathname.replace(
+          /^\/$|^\/(?!en\/)/,
+          "/en/",
+        );
+        window.location.href = alternateLanguagePath;
+      }
+    } else {
+      if (alternateHref) {
+        window.location.href = `${window.location.origin}/${alternateHref}`;
+      } else {
+        const alternateLanguagePath = window.location.pathname.replace(
+          /\/en\//,
+          "/",
+        );
+        window.location.href = alternateLanguagePath;
+      }
+    }
+  }
+</script>
+
+<style>
+  .language-switcher {
+    position: relative;
+    display: inline-block;
+  }
+
+  select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  select:hover {
+    border-color: #888;
+  }
+
+  :root.dark select {
+    background-color: #333;
+    color: #fff;
+  }
+</style>
