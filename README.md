@@ -1,9 +1,10 @@
-run bun run build (or npm run build) multiple times. at some point it will stop when processing BaseLayout.astro withour any error.
+run `bun run build` (or `npm run build`) multiple times. at some point it will stop when processing `BaseLayout.astro` withour any error.
 
-It fails inside the function bufferHeadContent, because await value.init(result) never completes.
+It fails inside the function `bufferHeadContent`, because `await value.init(result)` never completes.
 
 More info here: https://github.com/withastro/astro/issues/12674
 
+```
 async function bufferHeadContent(result) {
   const iterator = result._metadata.propagators.values();
   console.log("RESULT")
@@ -28,3 +29,4 @@ async function bufferHeadContent(result) {
     index++;
   }
 }
+```
